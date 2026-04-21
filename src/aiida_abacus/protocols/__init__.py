@@ -5,6 +5,8 @@ Module for storing protocols and input generators for AiiDA ABACUS workflows.
 from .generator import (
     AbacusBandInputGenerator,
     AbacusBaseInputGenerator,
+    AbacusDosInputGenerator,
+    AbacusPdosInputGenerator,
     AbacusRelaxInputGenerator,
     BaseInputGenerator,
     PresetConfig,
@@ -15,6 +17,8 @@ from .generator import (
 __all__ = [
     "AbacusBandInputGenerator",
     "AbacusBaseInputGenerator",
+    "AbacusDosInputGenerator",
+    "AbacusPdosInputGenerator",
     "AbacusRelaxInputGenerator",
     "BaseInputGenerator",
     "PresetConfig",

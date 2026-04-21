@@ -11,6 +11,8 @@ from aiida import orm
 from aiida_abacus.protocols.generator import (
     AbacusBandInputGenerator,
     AbacusBaseInputGenerator,
+    AbacusDosInputGenerator,
+    AbacusPdosInputGenerator,
     AbacusRelaxInputGenerator,
     PresetConfig,
     update_dict_node,
@@ -343,6 +345,20 @@ class TestBandInputGenerator:
         generator = AbacusBandInputGenerator(preset_name="default")
 
         assert generator.WF_ENTRYPOINT == "abacus.band"
+        assert generator.preset_name == "default"
+
+    def test_dos_generator_initialization(self):
+        """Test DosInputGenerator initialization"""
+        generator = AbacusDosInputGenerator(preset_name="default")
+
+        assert generator.WF_ENTRYPOINT == "abacus.dos"
+        assert generator.preset_name == "default"
+
+    def test_pdos_generator_initialization(self):
+        """Test PdosInputGenerator initialization"""
+        generator = AbacusPdosInputGenerator(preset_name="default")
+
+        assert generator.WF_ENTRYPOINT == "abacus.pdos"
         assert generator.preset_name == "default"
 
     def test_set_band_settings(self, si_structure, abacus_code):

@@ -23,6 +23,11 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
 
     _protocol_tag = "band"
 
+    @staticmethod
+    def _should_run_bands_from_settings(settings):
+        """Support both legacy `run_band` and current `run_bands` keys."""
+        return settings.get("run_bands", settings.get("run_band", True))
+
     @classmethod
     def define(cls, spec):
         """Define the inputs"""
@@ -71,13 +76,19 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
             cls.run_bands_dos,
             cls.verify_bands_dos,
         )
-        spec.output("band_structure", valid_type=orm.BandsData, help="Output band structure data.")
+        spec.output("band_structure", valid_type=orm.BandsData, required=False, help="Output band structure data.")
         spec.output(
             "primitive_structure",
             valid_type=orm.StructureData,
+            required=False,
             help="Primitive structure for which the band structure is calculated for.",
         )
-        spec.output("seekpath_parameters", valid_type=orm.Dict, help="Parameters used for the kpath generation.")
+        spec.output(
+            "seekpath_parameters",
+            valid_type=orm.Dict,
+            required=False,
+            help="Parameters used for the kpath generation.",
+        )
 
     @classmethod
     def get_protocol_filepath(cls, file_alias: str | None = None) -> pathlib.Path:
@@ -166,7 +177,7 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
 
     def should_generate_path(self):
         """Check if we need to generate the path"""
-        return self.ctx.kpoints_band is None and self.ctx.band_settings["run_bands"]
+        return self.ctx.kpoints_band is None and self._should_run_bands_from_settings(self.ctx.band_settings)
 
     def generate_path(self):
         """
@@ -258,21 +269,24 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
         # Configure the restart folder
         inputs.abacus.restart_folder = self.ctx.restart_folder
         running = {}
-        if self.ctx.band_settings.get("run_band", True):
+        if self._should_run_bands_from_settings(self.ctx.band_settings):
             # Set the kpoints to be that of the band path
             inputs.kpoints = self.ctx.kpoints_band
             if "kpoints_distance" in inputs:
                 del inputs["kpoints_distance"]
-            inputs.abacus.settings = inputs.abacus.settings.get_dict() if "settings" in inputs.abacus else {}
-            inputs.abacus.settings["include_bands"] = True
+            band_settings = inputs.abacus.settings.get_dict() if "settings" in inputs.abacus else {}
+            band_settings["include_bands"] = True
             band_input = prepare_process_inputs(AbacusBaseWorkChain, inputs)
+            band_input.abacus.settings = orm.Dict(band_settings)
             running["band_workchain"] = self.submit(AbacusBaseWorkChain, **band_input)
         if self.ctx.band_settings.get("run_dos", False):
             if "kpoints" in inputs:
                 del inputs["kpoints"]
             # Use spacing to define DOS kpoints
             inputs.kpoints_distance = self.ctx.band_settings["dos_kpoints_distance"]
+            dos_settings = inputs.abacus.settings.get_dict() if "settings" in inputs.abacus else {}
             dos_input = prepare_process_inputs(AbacusBaseWorkChain, inputs)
+            dos_input.abacus.settings = orm.Dict(dos_settings)
             running["dos_workchain"] = self.submit(AbacusBaseWorkChain, **dos_input)
 
         return ToContext(**running)

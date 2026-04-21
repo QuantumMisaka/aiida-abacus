@@ -86,13 +86,24 @@ class AbacusParser(Parser):
         if self.check_include_node("bands"):
             eigenvalues, occupations, _ = raw_parser.parse_eigenvalues()
             kpoints_direct, _ = raw_parser.parse_kpoints()
+            nkpoints = kpoints_direct.shape[0]
+            nspins = eigenvalues.shape[0]
+            labels = None
+            if nspins > 1 and nkpoints == eigenvalues.shape[1] * nspins:
+                nkpts_per_spin = eigenvalues.shape[1]
+                kpoints_direct = kpoints_direct[:nkpts_per_spin]
+                klabels = self.node.inputs.kpoints.labels
+                if klabels and len(klabels) == nkpoints:
+                    labels = klabels[:nkpts_per_spin]
+            else:
+                labels = self.node.inputs.kpoints.labels
             kcoord = kpoints_direct[:, :3]
             kweights = kpoints_direct[:, 3]
             node = orm.BandsData()
             node.set_kpoints(kcoord, weights=kweights)
-            assert kcoord.shape[0] == eigenvalues.shape[1], "Inconsistent number of kpoints reported (do not use kpar)"
             node.set_bands(eigenvalues, occupations=occupations)
-            node.labels = self.node.inputs.kpoints.labels
+            if labels:
+                node.labels = labels
             # Record the fermi level - the unit is eV
             node.base.attributes.set("fermi_level", misc_node.get("fermi_level"))
             self.out("bands", node)

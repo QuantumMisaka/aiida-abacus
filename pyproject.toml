@@ -77,6 +77,8 @@ Source = "https://github.com/MCresearch/aiida-abacus"
 "abacus.base" = "aiida_abacus.workflows.base:AbacusBaseWorkChain"
 "abacus.relax" = "aiida_abacus.workflows.relax:AbacusRelaxWorkChain"
 "abacus.band" = "aiida_abacus.workflows.band:AbacusBandWorkChain"
+"abacus.dos" = "aiida_abacus.workflows.dos:AbacusDosWorkChain"
+"abacus.pdos" = "aiida_abacus.workflows.dos:AbacusPdosWorkChain"
 
 [project.entry-points."aiida.parsers"]
 "abacus.abacus" = "aiida_abacus.parsers:AbacusParser"

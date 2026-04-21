@@ -24,6 +24,8 @@ from aiida_abacus.common import recursive_merge
 __all__ = [
     "AbacusBandInputGenerator",
     "AbacusBaseInputGenerator",
+    "AbacusDosInputGenerator",
+    "AbacusPdosInputGenerator",
     "AbacusRelaxInputGenerator",
 ]
 
@@ -574,3 +576,15 @@ class AbacusBandInputGenerator(BaseInputGenerator):
         if hasattr(self.preset, "default_band_settings") and self.preset.default_band_settings:
             self.set_band_settings(self.preset.default_band_settings)
         return builder
+
+
+class AbacusDosInputGenerator(AbacusBandInputGenerator):
+    """Input generator for AbacusDosWorkChain."""
+
+    WF_ENTRYPOINT = "abacus.dos"
+
+
+class AbacusPdosInputGenerator(AbacusBandInputGenerator):
+    """Input generator for AbacusPdosWorkChain."""
+
+    WF_ENTRYPOINT = "abacus.pdos"

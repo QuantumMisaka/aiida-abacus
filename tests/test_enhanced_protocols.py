@@ -7,9 +7,12 @@ from pathlib import Path
 from aiida_abacus.protocols.generator import (
     AbacusBandInputGenerator,
     AbacusBaseInputGenerator,
+    AbacusDosInputGenerator,
+    AbacusPdosInputGenerator,
     AbacusRelaxInputGenerator,
     PresetConfig,
 )
+from aiida_abacus.workflows.dos import AbacusDosWorkChain, AbacusPdosWorkChain
 from aiida_abacus.workflows.band import AbacusBandWorkChain
 from aiida_abacus.workflows.base import AbacusBaseWorkChain
 from aiida_abacus.workflows.relax import AbacusRelaxWorkChain
@@ -107,6 +110,20 @@ def test_band_input_generator():
         assert "run_bands" in generator.preset.default_band_settings
 
 
+def test_dos_input_generator():
+    """Test AbacusDosInputGenerator."""
+
+    generator = AbacusDosInputGenerator(preset_name="default")
+    assert generator.WF_ENTRYPOINT == "abacus.dos"
+
+
+def test_pdos_input_generator():
+    """Test AbacusPdosInputGenerator."""
+
+    generator = AbacusPdosInputGenerator(preset_name="default")
+    assert generator.WF_ENTRYPOINT == "abacus.pdos"
+
+
 def test_protocol_filepath_resolution():
     """Test that protocol filepath resolution works correctly"""
 
@@ -125,6 +142,14 @@ def test_protocol_filepath_resolution():
     assert isinstance(band_filepath, Path)
     assert band_filepath.exists()
 
+    dos_filepath = AbacusDosWorkChain.get_protocol_filepath()
+    assert isinstance(dos_filepath, Path)
+    assert dos_filepath.exists()
+
+    pdos_filepath = AbacusPdosWorkChain.get_protocol_filepath()
+    assert isinstance(pdos_filepath, Path)
+    assert pdos_filepath.exists()
+
 
 def test_protocol_tags():
     """Test that protocol tags are correctly set"""
@@ -132,3 +157,17 @@ def test_protocol_tags():
     assert AbacusBaseWorkChain._protocol_tag == "base"
     assert AbacusRelaxWorkChain._protocol_tag == "relax"
     assert AbacusBandWorkChain._protocol_tag == "band"
+    assert AbacusDosWorkChain._protocol_tag == "dos"
+    assert AbacusPdosWorkChain._protocol_tag == "pdos"
+
+
+def test_dos_pdos_protocol_defaults():
+    """Test DOS/PDOS bridge defaults."""
+
+    dos_inputs = AbacusDosWorkChain.get_protocol_inputs("balanced")
+    pdos_inputs = AbacusPdosWorkChain.get_protocol_inputs("balanced")
+
+    assert dos_inputs["band_settings"]["run_bands"] is False
+    assert dos_inputs["band_settings"]["run_dos"] is True
+    assert pdos_inputs["band_settings"]["run_bands"] is False
+    assert pdos_inputs["band_settings"]["run_dos"] is True
