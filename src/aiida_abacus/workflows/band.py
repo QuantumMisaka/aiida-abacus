@@ -89,6 +89,10 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
             required=False,
             help="Parameters used for the kpath generation.",
         )
+        spec.exit_code(401, "ERROR_RELAX_PROCESS_FAILED", message="the relax workchain sub process failed")
+        spec.exit_code(402, "ERROR_SCF_PROCESS_FAILED", message="the scf workchain sub process failed")
+        spec.exit_code(403, "ERROR_SUB_PROC_BANDS_FAILED", message="the bands sub process failed")
+        spec.exit_code(404, "ERROR_SUB_PROC_DOS_FAILED", message="the dos sub process failed")
 
     @classmethod
     def get_protocol_filepath(cls, file_alias: str | None = None) -> pathlib.Path:
@@ -285,6 +289,7 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
             # Use spacing to define DOS kpoints
             inputs.kpoints_distance = self.ctx.band_settings["dos_kpoints_distance"]
             dos_settings = inputs.abacus.settings.get_dict() if "settings" in inputs.abacus else {}
+            inputs.abacus.parameters["input"]["out_dos"] = 1
             dos_input = prepare_process_inputs(AbacusBaseWorkChain, inputs)
             dos_input.abacus.settings = orm.Dict(dos_settings)
             running["dos_workchain"] = self.submit(AbacusBaseWorkChain, **dos_input)

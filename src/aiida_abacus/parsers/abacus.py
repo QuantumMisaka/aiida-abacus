@@ -24,6 +24,14 @@ DEFAULT_OUTPUT_SETTINGS = {
 }
 
 
+def _sanitize_band_labels(labels, nkpoints):
+    """Drop labels whose indices exceed the parsed k-point list."""
+    if not labels:
+        return None
+    sanitized = [(index, label) for index, label in labels if index < nkpoints]
+    return sanitized or None
+
+
 class AbacusParser(Parser):
     """
     Parser class for parsing output of calculation.
@@ -102,6 +110,7 @@ class AbacusParser(Parser):
             node = orm.BandsData()
             node.set_kpoints(kcoord, weights=kweights)
             node.set_bands(eigenvalues, occupations=occupations)
+            labels = _sanitize_band_labels(labels, len(kcoord))
             if labels:
                 node.labels = labels
             # Record the fermi level - the unit is eV

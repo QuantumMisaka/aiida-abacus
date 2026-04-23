@@ -16,6 +16,13 @@ def test_run_bands_flag_compatibility():
     assert AbacusBandWorkChain._should_run_bands_from_settings({}) is True
 
 
+def test_band_workchain_defines_subprocess_exit_codes():
+    assert AbacusBandWorkChain.exit_codes.ERROR_RELAX_PROCESS_FAILED.status == 401
+    assert AbacusBandWorkChain.exit_codes.ERROR_SCF_PROCESS_FAILED.status == 402
+    assert AbacusBandWorkChain.exit_codes.ERROR_SUB_PROC_BANDS_FAILED.status == 403
+    assert AbacusBandWorkChain.exit_codes.ERROR_SUB_PROC_DOS_FAILED.status == 404
+
+
 @pytest.mark.parametrize("workflow_cls", [AbacusDosWorkChain, AbacusPdosWorkChain])
 def test_dos_like_builder_defaults(workflow_cls, abacus_code, si_structure, pseudo_family_v2):
     """DOS-like builders disable band paths and enable DOS by default."""

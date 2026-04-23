@@ -11,6 +11,7 @@ from aiida_abacus.parsers.raw_parsers import (
     KpointsParser,
     StruParser,
 )
+from aiida_abacus.parsers.abacus import _sanitize_band_labels
 
 
 def test_eigenvalues(data_folder):
@@ -79,3 +80,11 @@ def test_stru_parser(data_folder):
         ),
     )
     np.testing.assert_allclose(positions[0], [0.0, 0.0, 13.1571816610])
+
+
+def test_sanitize_band_labels_drops_out_of_range_entries():
+    labels = [(0, "GAMMA"), (4, "X"), (9, "L")]
+
+    sanitized = _sanitize_band_labels(labels, 5)
+
+    assert sanitized == [(0, "GAMMA"), (4, "X")]
