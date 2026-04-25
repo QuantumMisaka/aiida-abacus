@@ -6,6 +6,7 @@ import pathlib
 
 import numpy as np
 from aiida import orm
+from aiida.common.exceptions import NotExistentAttributeError
 from aiida.common.extendeddicts import AttributeDict
 from aiida.common.lang import type_check
 from aiida.engine import ToContext, WorkChain, calcfunction, if_
@@ -258,9 +259,17 @@ class AbacusBandWorkChain(ProtocolMixin, WorkChain):
         return ToContext(scf_workchain=running)
 
     def verify_scf(self):
-        if self.ctx.scf_workchain.is_excepted:
+        if self.ctx.scf_workchain.is_excepted or self.ctx.scf_workchain.is_killed:
+            self.report("SCF workchain was excepted or killed")
             return self.exit_codes.ERROR_SCF_PROCESS_FAILED
-        self.ctx.restart_folder = self.ctx.scf_workchain.outputs.remote_folder
+        if not self.ctx.scf_workchain.is_finished_ok:
+            self.report(f"SCF workchain finished with non-zero exit status: {self.ctx.scf_workchain.exit_status}")
+            return self.exit_codes.ERROR_SCF_PROCESS_FAILED
+        try:
+            self.ctx.restart_folder = self.ctx.scf_workchain.outputs.remote_folder
+        except NotExistentAttributeError:
+            self.report("SCF workchain finished without remote_folder output")
+            return self.exit_codes.ERROR_SCF_PROCESS_FAILED
 
     def run_bands_dos(self):
         """Launch band and/or DOS calculation"""
