@@ -169,5 +169,9 @@ def test_dos_pdos_protocol_defaults():
 
     assert dos_inputs["band_settings"]["run_bands"] is False
     assert dos_inputs["band_settings"]["run_dos"] is True
+    assert dos_inputs["band_settings"]["dos_postprocess_backend"] == "pyatb"
+    assert dos_inputs["band_settings"]["dos_postprocess_placement"] == "cpu-first"
     assert pdos_inputs["band_settings"]["run_bands"] is False
     assert pdos_inputs["band_settings"]["run_dos"] is True
+    assert pdos_inputs["band_settings"]["dos_postprocess_backend"] == "pyatb"
+    assert pdos_inputs["band_settings"]["dos_postprocess_placement"] == "cpu-first"

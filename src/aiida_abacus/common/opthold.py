@@ -172,6 +172,14 @@ class BandOptions(OptionContainer):
         description="Flag for running DOS calculations",
         default=False,
     )
+    dos_postprocess_backend: str = Field(
+        description="Preferred backend for DOS/PDOS postprocess steps such as pyatb.",
+        default="auto",
+    )
+    dos_postprocess_placement: str = Field(
+        description="Preferred placement for CPU-only DOS/PDOS postprocess steps.",
+        default="inherit",
+    )
     additional_band_analysis_parameters: dict = Field(
         description="Additional keyword arguments for the seekpath/ interface, available keys are:"
         "  ['with_time_reversal', 'reference_distance', 'recipe', 'threshold', 'symprec', 'angle_tolerance']",

@@ -2,6 +2,8 @@ default_inputs:
   band_settings:
     run_bands: false
     run_dos: true
+    dos_postprocess_backend: pyatb
+    dos_postprocess_placement: cpu-first
     symprec: 1e-5
 
 default_protocol: balanced

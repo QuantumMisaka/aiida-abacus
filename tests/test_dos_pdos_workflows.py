@@ -91,3 +91,5 @@ def test_dos_like_builder_defaults(workflow_cls, abacus_code, si_structure, pseu
 
     assert builder.band_settings["run_bands"] is False
     assert builder.band_settings["run_dos"] is True
+    assert builder.band_settings["dos_postprocess_backend"] == "pyatb"
+    assert builder.band_settings["dos_postprocess_placement"] == "cpu-first"
